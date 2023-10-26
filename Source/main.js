@@ -6,6 +6,10 @@
 
 const game = new Phaser.Game(config)*/
 
+//5 points: added a smaller, faster catship wirth 40 points
+//3 points: added a display for time remaining
+//1 point: made it so player can move after firing
+
 let config = {
     type: Phaser.CANVAS,
     width: 640,

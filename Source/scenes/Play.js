@@ -9,16 +9,19 @@ class Play extends Phaser.Scene {
         this.load.image('spaceship', './assets/spaceship.png');
         this.load.image('catship', './assets/cat___.png');
         this.load.image('starfield', './assets/starfield.png');
+        this.load.image('planets', './assets/planets.png');
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
 
     }
 
     create() {
         //this.add.text(20, 20, "Rocket Patrol Play");
-
+        //this.remainingTime = game.settings.gameTimer;
+        //this.addedTime = 1000;
+        //this.timeLimit = this.game.settings.gameTimer;
         //place tile sprite
         this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0,0);
-
+        this.planets = this.add.tileSprite(0, 0, 640, 480, 'planets').setOrigin(0,0);
 
         this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 0x00FF00).setOrigin(0, 0);
         //white borders
@@ -80,6 +83,33 @@ class Play extends Phaser.Scene {
             this.gameOver = true;
         }, null, this); 
 
+        let timerConfig = {
+            fontFamily: 'Courier',
+            fontSize: '28px',
+            backgroundColor: '#F3B141',
+            color: '#843605',
+            align: 'right',
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 100
+        }
+
+        this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.remainingTime = Math.ceil(this.clock.getRemainingSeconds());
+                this.timerLeft = this.add.text(borderUISize + borderPadding*12, borderUISize + borderPadding*2, this.remainingTime, timerConfig);
+                //this.add.text(game.config.width - 350, borderUISize + borderPadding * 2, "Time Elapsed: "+ Math.ceil(this.clock.elapsed/1000), timerConfig);
+            },
+            loop: true,
+        });
+
+
+        //this.timer = Math.ceil(this.clock.getRemainingSeconds());
+        //this.timerLeft = this.add.text(borderUISize + borderPadding*12, borderUISize + borderPadding*2, this.timer, timerConfig);
+
         //this.timer = this.clock.getRemainingSeconds();
 
         //display time???
@@ -100,7 +130,7 @@ class Play extends Phaser.Scene {
 
     update(){
 
-        let timerConfig = {
+        /*let timerConfig = {
             fontFamily: 'Courier',
             fontSize: '28px',
             backgroundColor: '#F3B141',
@@ -114,7 +144,8 @@ class Play extends Phaser.Scene {
         }
 
         this.timer = Math.ceil(this.clock.getRemainingSeconds());
-        this.timerLeft = this.add.text(borderUISize + borderPadding*12, borderUISize + borderPadding*2, this.timer, timerConfig);
+        this.timerLeft = this.add.text(borderUISize + borderPadding*12, borderUISize + borderPadding*2, this.timer, timerConfig);*/
+
 
         // check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyR)) {
@@ -124,13 +155,10 @@ class Play extends Phaser.Scene {
             this.scene.start("menuScene");
         }
 
-        /*this.starfield.tilePositionX -= 4;
-        this.p1Rocket.update();
-        this.ship01.update();
-        this.ship02.update();
-        this.ship03.update();*/
 
-        if (!this.gameOver) {               
+        if (!this.gameOver) {       
+            this.starfield.tilePositionX -= 4;
+            this.planets.tilePositionX -= 1;        
             this.p1Rocket.update();         // update rocket sprite
             this.ship01.update();           // update spaceships (x3)
             this.ship02.update();
@@ -147,25 +175,29 @@ class Play extends Phaser.Scene {
             //console.log('kaboom ship 03');
             this.p1Rocket.reset();
             this.shipExplode(this.ship03);
-            this.clock.remainingTime += 10000;
+            this.remainingTime += this.addedTime;
+            //this.time.remainingTime+=5000;
         }
         if (this.checkCollision(this.p1Rocket, this.ship02)) {
             //console.log('kaboom ship 02');
             this.p1Rocket.reset();
             this.shipExplode(this.ship02);
-            this.clock.remainingTime += 10000;
+            this.remainingTime += this.addedTime;
+            //this.time.remainingTime+=5000;
         }
         if (this.checkCollision(this.p1Rocket, this.ship01)) {
             //console.log('kaboom ship 01');
             this.p1Rocket.reset();
             this.shipExplode(this.ship01);
-            this.clock.remainingTime += 10000;
+            this.remainingTime += this.addedTime;
+            //this.time.remainingTime += 5000;
         }
         if (this.checkCollision(this.p1Rocket, this.catship01)) {
             //console.log('kaboom ship 01');
             this.p1Rocket.reset();
             this.shipExplode(this.catship01);
-            this.clock.remainingTime += 10000;
+            this.remainingTime += this.addedTime;
+            //this.time.remainingTime += 5000;
         }
         
     }
@@ -180,10 +212,15 @@ class Play extends Phaser.Scene {
           rocket.x + rocket.width > ship.x && 
           rocket.y < ship.y + ship.height &&
           rocket.height + rocket.y > ship. y) {
-          return true;
+            console.log(this.remainingTime);
+            const addedTime = 1000;
+            this.clock.remainingTime += addedTime;
+            console.log(this.remainingTime);
+            return true;
         } else {
-          return false;
+            return false;
         }
+        
     }
 
     shipExplode(ship) {
